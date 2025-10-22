@@ -2,10 +2,11 @@ import { Link } from "react-router-dom"
 import DarkModeToggle from "./DarkModeToggle"
 import { useAuth } from "../context/AuthContext"
 import { ShoppingCart } from "lucide-react"
+import { supabase } from "../lib/supabaseClient"
 
 export default function Navbar() {
     const { user } = useAuth()
-
+    console.log(user)
     return (
         <nav className="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-900 shadow">
             <Link to="/">
@@ -29,6 +30,26 @@ export default function Navbar() {
                         3
                     </span>
                 </button>
+                {user ? (
+                    <span className="text-gray-800 dark:text-gray-200 font-medium">
+                        مرحبًا، {user.identities[0]?.identity_data.full_name || user.email} <span className="text-gray-500 dark:text-gray-400">|</span>
+                        {/* log out button */}
+                        <button
+                            onClick={() => {
+                                supabase.auth.signOut()
+                                window.location.reload()
+                            }}
+                            className="ml-2 text-red-600 hover:underline"
+                        >
+                            تسجيل خروج
+                        </button>
+                    </span>
+                ) : (
+                    <Link to="/login" className="text-gray-800 dark:text-gray-200 hover:underline">
+                        تسجيل الدخول
+                    </Link>
+                )}
+
             </div>
         </nav>
     )

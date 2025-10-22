@@ -1,27 +1,68 @@
-import { useState } from "react"
-import { supabase } from "../lib/supabaseClient"
-import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const navigate = useNavigate()
+    const navigate = useNavigate();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) alert(error.message)
-    else navigate("/")
-  }
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+            setError("بيانات الدخول غير صحيحة");
+        } else {
+            navigate("/");
+        }
+    };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-      <form onSubmit={handleLogin} className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
-        <h2 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-white">تسجيل الدخول</h2>
-        <input type="email" placeholder="البريد الإلكتروني" className="mb-3 p-2 w-64 rounded-md border" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="كلمة المرور" className="mb-3 p-2 w-64 rounded-md border" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">دخول</button>
-      </form>
-    </div>
-  )
+    return (
+        <section className="bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-gray-800 dark:to-gray-900 text-white py-20 text-center relative overflow-hidden min-h-screen flex items-center justify-center">
+            <motion.div
+                className="bg-white/10 backdrop-blur-md p-10 rounded-2xl shadow-lg w-[90%] max-w-md"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+            >
+                <h1 className="text-3xl font-extrabold mb-6 text-yellow-300">تسجيل الدخول</h1>
+                <form onSubmit={handleLogin} className="flex flex-col gap-4">
+                    <input
+                        type="email"
+                        placeholder="البريد الإلكتروني"
+                        className="p-3 rounded-lg bg-white/20 placeholder-gray-200 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="كلمة المرور"
+                        className="p-3 rounded-lg bg-white/20 placeholder-gray-200 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    {error && <p className="text-red-300 text-sm">{error}</p>}
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        className="mt-4 bg-yellow-400 text-gray-900 font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-yellow-500"
+                    >
+                        تسجيل الدخول
+                    </motion.button>
+                </form>
+                <p className="mt-4 text-sm">
+                    ليس لديك حساب؟{" "}
+                    <button
+                        onClick={() => navigate("/register")}
+                        className="text-yellow-300 underline hover:text-yellow-400"
+                    >
+                        إنشاء حساب
+                    </button>
+                </p>
+            </motion.div>
+        </section>
+    );
 }

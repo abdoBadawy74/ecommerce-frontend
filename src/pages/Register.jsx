@@ -1,145 +1,130 @@
 // src/pages/Register.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { supabase } from "../lib/supabaseClient";
 
 export default function Register() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState(null);
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setMessage(null);
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setMessage(null);
 
-    // simple validation
-    if (!email || !password) {
-      setMessage({ type: "error", text: "فضلاً املأ البريد الإلكتروني وكلمة المرور" });
-      return;
-    }
-    if (password.length < 6) {
-      setMessage({ type: "error", text: "كلمة المرور لازم تكون 6 أحرف على الأقل" });
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // Supabase v2 signUp with optional user metadata
-      // (options.data will be stored in auth.users.user_metadata and can be used by triggers)
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName || null }
+        if (!email || !password) {
+            setMessage({ type: "error", text: "فضلاً املأ البريد الإلكتروني وكلمة المرور" });
+            return;
         }
-      });
+        if (password.length < 6) {
+            setMessage({ type: "error", text: "كلمة المرور لازم تكون 6 أحرف على الأقل" });
+            return;
+        }
 
-      if (error) {
-        setMessage({ type: "error", text: error.message });
-        setLoading(false);
-        return;
-      }
+        try {
+            setLoading(true);
 
-      // 성공: depending on your Supabase settings, an email confirmation may be required.
-      // show friendly message and redirect to login (or homepage)
-      setMessage({
-        type: "success",
-        text:
-          data?.user
-            ? "تم إنشاء الحساب بنجاح! إذا كان التأكيد عبر البريد مفعلًا، افحص بريدك الإلكتروني."
-            : "تم إرسال رابط التفعيل إلى بريدك الإلكتروني، افحصه لإكمال التسجيل."
-      });
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: { data: { full_name: fullName || null } },
+            });
 
-      setLoading(false);
+            if (error) throw error;
 
-      // نروح لصفحة الدخول بعد ثانيتين عشان المستخدم يلحق يشوف الرسالة
-      setTimeout(() => navigate("/login"), 1600);
-    } catch (err) {
-      setMessage({ type: "error", text: err.message || "حدث خطأ غير معروف" });
-      setLoading(false);
-    }
-  };
+            setMessage({
+                type: "success",
+                text:
+                    data?.user
+                        ? "تم إنشاء الحساب بنجاح! افحص بريدك الإلكتروني لتأكيد الحساب."
+                        : "تم إرسال رابط التفعيل إلى بريدك الإلكتروني.",
+            });
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
-      <form
-        onSubmit={handleRegister}
-        className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8"
-      >
-        <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100 text-center">
-          إنشاء حساب جديد
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-300 mb-6 text-center">
-          سجل حسابك وابدأ التسوق الآن
-        </p>
+            setTimeout(() => navigate("/login"), 1800);
+        } catch (err) {
+            setMessage({ type: "error", text: err.message || "حدث خطأ غير معروف" });
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        {message && (
-          <div
-            className={`mb-4 px-4 py-2 rounded-md text-sm ${
-              message.type === "error"
-                ? "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                : "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
+    return (
+        <section className="bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-gray-800 dark:to-gray-900 text-white py-20 text-center relative overflow-hidden min-h-screen flex items-center justify-center">
+            {/* خلفية بلور جميلة */}
+            <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="bg-white/10 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-[90%] max-w-md"
+            >
+                <h1 className="text-3xl font-extrabold mb-2 text-yellow-300">إنشاء حساب جديد</h1>
+                <p className="text-sm text-gray-100 mb-6">سجّل حسابك وابدأ التسوق الآن 🎉</p>
 
-        <label className="block mb-3">
-          <span className="text-sm text-gray-700 dark:text-gray-200">الاسم الكامل (اختياري)</span>
-          <input
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="مثلًا: أحمد علي"
-            className="mt-1 block w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2 focus:outline-none"
-          />
-        </label>
+                {message && (
+                    <div
+                        className={`mb-4 px-4 py-2 rounded-md text-sm font-medium ${message.type === "error"
+                                ? "bg-red-500/20 text-red-200"
+                                : "bg-green-500/20 text-green-200"
+                            }`}
+                    >
+                        {message.text}
+                    </div>
+                )}
 
-        <label className="block mb-3">
-          <span className="text-sm text-gray-700 dark:text-gray-200">البريد الإلكتروني</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            required
-            className="mt-1 block w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2 focus:outline-none"
-          />
-        </label>
+                <form onSubmit={handleRegister} className="flex flex-col gap-4 text-right">
+                    <input
+                        type="text"
+                        placeholder="الاسم الكامل (اختياري)"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="p-3 rounded-lg bg-white/20 placeholder-gray-200 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    />
+                    <input
+                        type="email"
+                        placeholder="البريد الإلكتروني"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="p-3 rounded-lg bg-white/20 placeholder-gray-200 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    />
+                    <input
+                        type="password"
+                        placeholder="كلمة المرور"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="p-3 rounded-lg bg-white/20 placeholder-gray-200 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    />
 
-        <label className="block mb-4">
-          <span className="text-sm text-gray-700 dark:text-gray-200">كلمة المرور</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-            className="mt-1 block w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2 focus:outline-none"
-          />
-        </label>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        disabled={loading}
+                        className="mt-4 bg-yellow-400 text-gray-900 font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-yellow-500 disabled:opacity-50"
+                    >
+                        {loading ? "جاري الإنشاء..." : "إنشاء الحساب"}
+                    </motion.button>
+                </form>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full mb-3 inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2"
-        >
-          {loading ? "جاري الإنشاء..." : "إنشاء حساب"}
-        </button>
+                <p className="mt-4 text-sm text-gray-100">
+                    لديك حساب بالفعل؟{" "}
+                    <Link to="/login" className="text-yellow-300 underline hover:text-yellow-400">
+                        تسجيل الدخول
+                    </Link>
+                </p>
+            </motion.div>
 
-        <p className="text-sm text-center text-gray-500 dark:text-gray-300">
-          لديك حساب؟{" "}
-          <Link to="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
-            تسجيل الدخول
-          </Link>
-        </p>
-      </form>
-    </div>
-  );
+            {/* لمسة ضوء خلفية */}
+            <motion.div
+                className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 w-2/3 h-40 bg-white/10 blur-3xl rounded-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 1 }}
+            />
+        </section>
+    );
 }
