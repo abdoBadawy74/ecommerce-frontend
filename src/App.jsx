@@ -9,6 +9,7 @@ import Footer from "./components/Footer"
 import CartPage from "./pages/CartPage"
 import OrdersPage from "./pages/OrdersPage"
 import { useEffect } from "react"
+import AdminDashboard from "./pages/AdminDashboard"
 
 
 
@@ -31,6 +32,7 @@ export default function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/admin" element={<AdminDashboard/>} />
             </Routes>
             <Footer />
           </div>
