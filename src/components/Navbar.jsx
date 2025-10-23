@@ -31,19 +31,21 @@ export default function Navbar() {
                     </span>
                 </Link>
                 {user ? (
-                    <span className="text-gray-800 dark:text-gray-200 font-medium">
-                        مرحبًا، {user.identities[0]?.identity_data.full_name || user.email} <span className="text-gray-500 dark:text-gray-400">|</span>
-                        {/* log out button */}
-                        <button
-                            onClick={() => {
-                                supabase.auth.signOut()
-                                window.location.reload()
-                            }}
-                            className="ml-2 text-red-600 hover:underline"
-                        >
-                            تسجيل خروج
-                        </button>
-                    </span>
+                    <>
+                        <Link to={"/orders"} className="text-gray-800 dark:text-gray-200 font-medium">
+                            مرحبًا، {user.identities[0]?.identity_data.full_name || user.email} <span className="text-gray-500 dark:text-gray-400">|</span>
+                            {/* log out button */}
+                        </Link>
+                            <button
+                                onClick={() => {
+                                    supabase.auth.signOut()
+                                    window.location.reload()
+                                }}
+                                className="ml-2 text-red-600 hover:underline"
+                            >
+                                تسجيل خروج
+                            </button>
+                    </>
                 ) : (
                     <Link to="/login" className="text-gray-800 dark:text-gray-200 hover:underline">
                         تسجيل الدخول
