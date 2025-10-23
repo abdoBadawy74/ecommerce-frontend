@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { supabase } from "../lib/supabaseClient"
 import ProductCard from "../components/ProductCard"
 import HeroSection from "../components/Hero"
+import { u } from "framer-motion/client"
 
 export default function Home() {
   const [products, setProducts] = useState([])
@@ -12,6 +13,10 @@ export default function Home() {
       setProducts(data || [])
     }
     fetchProducts()
+  }, [])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
   }, [])
 
   return (
