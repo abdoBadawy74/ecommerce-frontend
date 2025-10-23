@@ -7,6 +7,7 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 
 import CartPage from "./pages/CartPage"
+import OrdersPage from "./pages/OrdersPage"
 
 
 
@@ -25,6 +26,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/orders" element={<OrdersPage />} />
             </Routes>
           </div>
         </BrowserRouter>

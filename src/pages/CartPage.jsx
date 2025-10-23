@@ -8,13 +8,12 @@ export default function CartPage() {
     const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [processing, setProcessing] = useState(false);
 
     useEffect(() => {
         if (!user) return navigate("/login");
         fetchCart();
     }, [user]);
-
-    console.log(user);
 
     const fetchCart = async () => {
         try {
@@ -42,6 +41,56 @@ export default function CartPage() {
         (acc, item) => acc + item.product.price * item.quantity,
         0
     );
+
+    const handleCheckout = async () => {
+        if (cartItems.length === 0) return alert("🛒 لا توجد منتجات في العربة!");
+        setProcessing(true);
+
+        try {
+            // 1️⃣ إنشاء الطلب في جدول orders
+            const { data: order, error: orderError } = await supabase
+                .from("orders")
+                .insert([
+                    {
+                        user_id: user.id,
+                        total_price: total,
+                        status: "pending",
+                        // service_role: "user"
+                    },
+                ])
+                .select()
+                .single();
+
+            if (orderError) throw orderError;
+
+            // 2️⃣ إضافة العناصر في order_items
+            const orderItemsData = cartItems.map((item) => ({
+                order_id: order.id,
+                product_id: item.product.id,
+                quantity: item.quantity,
+                price: item.product.price,
+            }));
+
+            const { error: orderItemsError } = await supabase
+                .from("order_items")
+                .insert(orderItemsData);
+
+            if (orderItemsError) throw orderItemsError;
+
+            // 3️⃣ حذف محتوى العربة
+            await supabase.from("cart").delete().eq("user_id", user.id);
+
+            // 4️⃣ تحديث الواجهة
+            setCartItems([]);
+            alert("✅ تم إنشاء الطلب بنجاح!");
+            navigate("/orders");
+        } catch (err) {
+            console.error(err.message);
+            alert("❌ حدث خطأ أثناء إتمام الطلب!");
+        } finally {
+            setProcessing(false);
+        }
+    };
 
     if (loading)
         return <p className="text-center text-gray-600 dark:text-gray-300 mt-10">جاري التحميل...</p>;
@@ -88,10 +137,11 @@ export default function CartPage() {
                             الإجمالي: {total.toFixed(2)} جنيه
                         </p>
                         <button
-                            className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-                            onClick={() => alert("🚀 تم إتمام الطلب بنجاح!")}
+                            className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg disabled:opacity-50"
+                            onClick={handleCheckout}
+                            disabled={processing}
                         >
-                            إتمام الطلب
+                            {processing ? "جاري إنشاء الطلب..." : "إتمام الطلب"}
                         </button>
                     </div>
                 </div>
