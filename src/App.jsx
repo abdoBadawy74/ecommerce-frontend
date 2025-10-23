@@ -6,11 +6,15 @@ import Home from "./pages/HomePage"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 
+import CartPage from "./pages/CartPage"
+
+
 
 export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+
         <BrowserRouter>
 
 
@@ -20,9 +24,11 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/cart" element={<CartPage />} />
             </Routes>
           </div>
         </BrowserRouter>
+
       </AuthProvider>
     </ThemeProvider>
   )
